@@ -3,27 +3,25 @@ import { useRouter } from 'next/router';
 import useSWR from 'swr';
 import Head from 'next/head';
 
-import { getAllEvents, getFilteredEvents } from '../../helpers/api-util';
+import { getFilteredEvents } from '../../helpers/api-util';
 import EventList from '../../components/events/event-list';
 import ResultsTitle from '../../components/events/results-title';
 import Button from '../../components/ui/button';
 import ErrorAlert from '../../components/ui/error-alert';
 
 function FilteredEventsPage(props) {
+ const Url = process.env.firebaseUrl;
   const [loadedEvents, setLoadedEvents] = useState();
   const router = useRouter();
-  
   const filterData = router.query.slug;
-  
+  console.log("url:",Url)
+  const { data, error } = useSWR(
+   ' https://events-a5a24-default-rtdb.firebaseio.com/events.json',
+    (url) => fetch(url).then((res) => res.json())
+  );
+  console.log('data',data);
 
-// const firebaseUrl = process.env.firebaseUrl;
-//   const { data, error } = useSWR(firebaseUrl,
-//     (url) => fetch(url).then(res => res.json())
-//   );
-  var data;
   useEffect(() => {
-    data = getAllEvents();
-    console.log(data);
     if (data) {
       const events = [];
 
@@ -41,7 +39,7 @@ function FilteredEventsPage(props) {
   let pageHeadData = (
     <Head>
       <title>Filtered Events</title>
-      <meta name='description' content={`A list of filtered events.`} />
+      <meta name="description" content={`A list of filtered events.`} />
     </Head>
   );
 
@@ -49,13 +47,11 @@ function FilteredEventsPage(props) {
     return (
       <Fragment>
         {pageHeadData}
-        <p className='center'>Loading...</p>
+        <p className="center">Loading...</p>
       </Fragment>
     );
   }
 
-
-  console.log(filterData);
   const filteredYear = filterData[0];
   const filteredMonth = filterData[1];
 
@@ -66,7 +62,7 @@ function FilteredEventsPage(props) {
     <Head>
       <title>Filtered Events</title>
       <meta
-        name='description'
+        name="description"
         content={`All events for ${numMonth}/${numYear}.`}
       />
     </Head>
@@ -78,7 +74,8 @@ function FilteredEventsPage(props) {
     numYear > 2030 ||
     numYear < 2021 ||
     numMonth < 1 ||
-    numMonth > 12 
+    numMonth > 12 ||
+    error
   ) {
     return (
       <Fragment>
@@ -86,8 +83,8 @@ function FilteredEventsPage(props) {
         <ErrorAlert>
           <p>Invalid filter. Please adjust your values!</p>
         </ErrorAlert>
-        <div className='center'>
-          <Button link='/events'>Show All Events</Button>
+        <div className="center">
+          <Button link="/events">Show All Events</Button>
         </div>
       </Fragment>
     );
@@ -108,8 +105,8 @@ function FilteredEventsPage(props) {
         <ErrorAlert>
           <p>No events found for the chosen filter!</p>
         </ErrorAlert>
-        <div className='center'>
-          <Button link='/events'>Show All Events</Button>
+        <div className="center">
+          <Button link="/events">Show All Events</Button>
         </div>
       </Fragment>
     );
