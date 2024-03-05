@@ -9,12 +9,13 @@ import ResultsTitle from '../../components/events/results-title';
 import Button from '../../components/ui/button';
 import ErrorAlert from '../../components/ui/error-alert';
 
+const firebaseUrl = process.env.firebaseUrl;
 function FilteredEventsPage(props) {
   const [loadedEvents, setLoadedEvents] = useState();
   const router = useRouter();
   const filterData = router.query.slug;
   const { data, error } = useSWR(
-    'UseYourLink',
+    firebaseUrl,
     (url) => fetch(url).then((res) => res.json())
   );
 
